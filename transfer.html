@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funds Transfer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Back Button */
+    #backArrow {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 15px;
+      color: #ff6f00;
+      text-decoration: none;
+      background-color: #fff;
+      padding: 6px 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    #backArrow:hover {
+      background-color: #333;
+      color: white;
+    }
+
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      width: 320px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #001f54;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+
+    /* Loader */
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      animation: spin 1s linear infinite;
+      margin: 15px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* PIN Modal */
+    .modal, .alert-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 280px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 15px;
+      color: #001f54;
+    }
+
+    /* PIN Display */
+    .pin-box {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .dot {
+      font-size: 28px;
+      color: #ccc; /* empty state */
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .dot.filled {
+      color: #000;
+    }
+
+    .hidden-input {
+      opacity: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .alert-modal button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .alert-modal button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="dashboard.html" id="backArrow" title="Go Back">&#8592; Back</a>
+
+  <div id="transferPage" class="container">
+    <h2>Funds Transfer</h2>
+
+    <label>Account Name</label>
+    <input type="text" id="accName" placeholder="Enter Account Name">
+
+    <label>Account Number</label>
+    <input type="text" id="accNumber" placeholder="Enter Account Number">
+
+    <label>Bank</label>
+    <input type="text" id="bank" placeholder="Enter Bank">
+
+    <label>Amount</label>
+    <input type="number" id="amount" placeholder="Enter Amount">
+
+    <label>Narration</label>
+    <input type="text" id="narration" placeholder="Enter Narration">
+
+    <button id="sendBtn">Send</button>
+
+    <div class="loader" id="loader"></div>
+  </div>
+
+  <!-- PIN Modal -->
+  <div class="modal" id="pinModal">
+    <div class="modal-content">
+      <h3>Enter PIN</h3>
+      <div class="pin-box">
+        <span class="dot" id="dot1">•</span>
+        <span class="dot" id="dot2">•</span>
+        <span class="dot" id="dot3">•</span>
+        <span class="dot" id="dot4">•</span>
+      </div>
+      <input type="tel" id="pinInput" maxlength="4" class="hidden-input">
+      <button id="confirmPinBtn">Confirm</button>
+      <div class="loader" id="pinLoader"></div>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div class="alert-modal" id="alertModal">
+    <div class="modal-content">
+      <h3 id="alertMessage">⚠️ Error</h3>
+      <button onclick="closeAlert()">OK</button>
+    </div>
+  </div>
+
+  <script>
+    const sendBtn = document.getElementById("sendBtn");
+    const loader = document.getElementById("loader");
+    const pinModal = document.getElementById("pinModal");
+    const confirmPinBtn = document.getElementById("confirmPinBtn");
+    const alertModal = document.getElementById("alertModal");
+    const alertMessage = document.getElementById("alertMessage");
+    const pinInput = document.getElementById("pinInput");
+    const pinLoader = document.getElementById("pinLoader");
+    const dots = [
+      document.getElementById("dot1"),
+      document.getElementById("dot2"),
+      document.getElementById("dot3"),
+      document.getElementById("dot4")
+    ];
+
+    sendBtn.addEventListener("click", () => {
+      let accName = document.getElementById("accName").value.trim();
+      let accNumber = document.getElementById("accNumber").value.trim();
+      let bank = document.getElementById("bank").value.trim();
+      let amount = document.getElementById("amount").value.trim();
+      let narration = document.getElementById("narration").value.trim();
+
+      // Validation: fields must not be empty
+      if (!accName || !accNumber || !bank || !amount || !narration) {
+        showAlert("⚠️ Please fill in all account details!");
+        return;
+      }
+
+      // Validation: account name must be only letters/spaces
+      if (!/^[a-zA-Z ]+$/.test(accName)) {
+        showAlert("⚠️ Account name must contain only letters!");
+        return;
+      }
+
+      // Validation: account number must be 10 digits
+      if (!/^\d{10}$/.test(accNumber)) {
+        showAlert("⚠️ Please enter a valid account number!");
+        return;
+      }
+
+      loader.style.display = "block";
+
+      setTimeout(() => {
+        loader.style.display = "none";
+        pinModal.style.display = "flex"; // Show PIN modal
+        pinInput.focus();
+      }, 2000);
+    });
+
+    // PIN input handling
+    pinModal.addEventListener("click", () => pinInput.focus());
+
+    pinInput.addEventListener("input", () => {
+      let val = pinInput.value;
+
+      for (let i = 0; i < dots.length; i++) {
+        if (i < val.length) {
+          dots[i].textContent = val[i]; // show digit first
+          setTimeout(() => {
+            if (pinInput.value[i]) dots[i].textContent = "•"; // replace with dot
+          }, 500);
+        } else {
+          dots[i].textContent = "•"; // reset to placeholder
+        }
+      }
+    });
+
+    confirmPinBtn.addEventListener("click", () => {
+      let pin = pinInput.value;
+
+      if (pin === "2244") {
+        // Show loader for 5 seconds
+        confirmPinBtn.style.display = "none";
+        pinLoader.style.display = "block";
+
+        setTimeout(() => {
+          pinModal.style.display = "none";
+          pinLoader.style.display = "none";
+          confirmPinBtn.style.display = "block";
+          showAlert("❌ Sorry, we cannot proceed with this transaction. Login detected from another location.");
+        }, 5000);
+      } else {
+        pinModal.style.display = "none";
+        showAlert("❌ Invalid PIN!");
+      }
+
+      // Reset after confirmation
+      pinInput.value = "";
+      dots.forEach(dot => dot.textContent = "•");
+    });
+
+    function showAlert(message) {
+      alertMessage.innerText = message;
+      alertModal.style.display = "flex";
+    }
+
+    function closeAlert() {
+      alertModal.style.display = "none";
+    }
+    
+    // Disable back button
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+      window.history.pushState(null, null, window.location.href);
+    };
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transaction History</title>
+  <a href="dashboard.html" id="backArrow" title="Go Back">&#8592; Back</a>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 12px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .debit { border-left: 6px solid #e74c3c; }
+    .credit { border-left: 6px solid #2ecc71; }
+    .login { border-left: 6px solid #7f8c8d; background: #f0f0f0; }
+    .type {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .amount {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .date {
+      color: #555;
+      font-size: 13px;
+    }
+    .info {
+      margin-top: 6px;
+      font-size: 14px;
+    }
+    .ref {
+      color: #0077cc;
+      font-size: 13px;
+    }
+    #seeMore {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+    #seeMore:hover {
+      background: #005fa3;
+    }
+    /* Return to Home button */
+    #returnHome {
+      display: block;
+      margin: 30px auto 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #2c3e50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      text-align: center;
+    }
+    #returnHome:hover {
+      background: #1a252f;
+    }
+    
+    #backArrow {
+    position: fixed;
+    top: 3px;
+    left: 5px;
+    font-size: 15px;
+    color: #ff6f00;
+    text-decoration: none;
+    background-color: white;
+    padding: 2px 6px;
+    border-radius: 5px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  #backArrow:hover {
+    background-color: #333;
+    color: white;
+  }
+  </style>
+</head>
+<body>
+  <h1>Transaction History</h1>
+
+  <div id="transactionsContainer"></div>
+  <button id="seeMore">See More</button>
+
+  <!-- Return to Home link -->
+  <a id="returnHome" href="dashboard.html">⬅ Return to Home</a>
+
+  <script>
+    const transactions = `Debit: Amt: $14,200.00 Date: 2025-APR-06 09:12:00 To: Olivia Martinez / Ref: Mortgage Payment
+Debit: Amt: $3,800.00 Date: 2025-APR-06 09:14:00 To: Target / Ref: Home Essentials
+Credit: Amt: $6,000.00 Date: 2025-APR-05 17:30:00 From: IRS Refund / Ref: TAX2025
+Last login: 2025-APR-07 3:43pm / Location: Dallas, TX
+
+Debit: Amt: $9,500.00 Date: 2025-MAR-28 11:00:00 To: Ford Finance / Ref: Auto Loan
+Debit: Amt: $2,100.00 Date: 2025-MAR-28 11:05:00 To: Starbucks / Ref: Monthly Spend
+Last login: 2025-MAR-29 8:22am / Location: San Jose, CA
+
+Credit: Amt: $4,000.00 Date: 2025-MAR-27 16:45:00 From: Paycheck Deposit / Ref: MARCH-PAY
+Debit: Amt: $12,700.00 Date: 2025-MAR-26 13:30:00 To: Apple / Ref: MacBook Pro Purchase
+Last login: 2025-MAR-27 7:01am / Location: Tampa, FL
+
+Debit: Amt: $6,800.00 Date: 2025-FEB-19 10:00:00 To: Delta Airlines / Ref: NYC Trip
+Debit: Amt: $1,200.00 Date: 2025-FEB-19 10:05:00 To: Uber / Ref: Ride Charges
+Credit: Amt: $2,500.00 Date: 2025-FEB-18 09:00:00 From: Freelance Payment / Ref: DESIGN-PROJ
+Last login: 2025-FEB-20 2:43pm / Location: Charlotte, NC
+
+Debit: Amt: $15,300.00 Date: 2025-JAN-10 14:20:00 To: Best Buy / Ref: Home Theater Setup
+Credit: Amt: $5,000.00 Date: 2025-JAN-09 12:00:00 From: Cashback Bonus / Ref: BBY-REBATE
+Last login: 2025-JAN-11 4:43pm / Location: Portland, OR
+
+Debit: Amt: $8,900.00 Date: 2024-DEC-22 11:30:00 To: Macy’s / Ref: Holiday Shopping
+Debit: Amt: $2,400.00 Date: 2024-DEC-22 11:35:00 To: DoorDash / Ref: Food Orders
+Credit: Amt: $3,000.00 Date: 2024-DEC-21 10:10:00 From: Gift Transfer / Ref: XMAS-GIFT
+Last login: 2024-DEC-23 6:43pm / Location: Philadelphia, PA
+
+Debit: Amt: $11,600.00 Date: 2024-NOV-15 09:45:00 To: UCLA / Ref: Tuition Fall
+Credit: Amt: $4,200.00 Date: 2024-NOV-14 08:30:00 From: Parent Support / Ref: EDU-FUND
+Last login: 2024-NOV-16 3:43pm / Location: Sacramento, CA
+
+Debit: Amt: $7,300.00 Date: 2024-OCT-03 13:00:00 To: Airbnb / Ref: Florida Stay
+Debit: Amt: $1,600.00 Date: 2024-OCT-03 13:05:00 To: Lyft / Ref: Ride Charges
+Credit: Amt: $2,800.00 Date: 2024-OCT-02 09:00:00 From: Refund / Ref: CANCELED-BOOKING
+Last login: 2024-OCT-04 2:43pm / Location: Indianapolis, IN
+
+Debit: Amt: $13,900.00 Date: 2024-SEP-18 10:30:00 To: Home Depot / Ref: Renovation
+Credit: Amt: $5,000.00 Date: 2024-SEP-17 15:00:00 From: Reimbursement / Ref: TOOL-RETURN
+Last login: 2024-SEP-19 5:43pm / Location: Nashville, TN
+
+Debit: Amt: $10,400.00 Date: 2024-AUG-01 08:45:00 To: Verizon Wireless / Ref: Annual Plan
+Debit: Amt: $2,300.00 Date: 2024-AUG-01 08:50:00 To: CVS Pharmacy / Ref: Health Supplies
+Credit: Amt: $3,000.00 Date: 2024-JUL-31 17:00:00 From: Reimbursement / Ref: RX-COVER
+Last login: 2024-AUG-02 9:43am / Location: Columbus, OH
+
+Debit: Amt: $17,600.00 Date: 2024-JUN-20 10:30:00 To: Tesla Finance / Ref: Lease Payment
+Credit: Amt: $6,000.00 Date: 2024-JUN-19 14:10:00 From: Investment Return / Ref: Q2-DIVIDEND
+Last login: 2024-JUN-21 3:43pm / Location: Salt Lake City, UT
+
+Debit: Amt: $9,900.00 Date: 2024-MAY-05 12:00:00 To: Lowe’s / Ref: Garden Renovation
+Debit: Amt: $1,800.00 Date: 2024-MAY-05 12:05:00 To: Panera Bread / Ref: Catering
+Credit: Amt: $2,500.00 Date: 2024-MAY-04 09:00:00 From: Refund / Ref: CANCELLED-ORDER
+Last login: 2024-MAY-06 4:43pm / Location: Kansas City, MO
+
+Debit: Amt: $13,200.00 Date: 2024-APR-10 11:30:00 To: NYU / Ref: Spring Tuition
+Credit: Amt: $4,000.00 Date: 2024-APR-09 08:30:00 From: Parent Transfer / Ref: EDU-SUPPORT
+Last login: 2024-APR-11 2:43pm / Location: New York, NY
+
+Debit: Amt: $7,500.00 Date: 2024-MAR-18 09:45:00 To: Hilton Hotels / Ref: Conference Stay
+Debit: Amt: $1,200.00 Date: 2024-MAR-18 09:50:00 To: Lyft / Ref: Ride Charges
+Credit: Amt: $3,000.00 Date: 2024-MAR-17 10:10:00 From: Sponsorship / Ref: EVENT-FUND
+Last login: 2024-MAR-19 6:43pm / Location: Orlando, FL
+
+Debit: Amt: $11,800.00 Date: 2024-FEB-02 13:00:00 To: Kaiser Permanente / Ref: Surgery Bill
+Credit: Amt: $3,500.00 Date: 2024-FEB-01 09:00:00 From: Insurance Claim / Ref: HEALTH-CLM
+Last login: 2024-FEB-03 3:43pm / Location: San Francisco, CA
+
+Debit: Amt: $12,800.00 Date: 2023-AUG-14 10:00:00 To: University of Michigan / Ref: Summer Tuition  
+Credit: Amt: $4,000.00 Date: 2023-AUG-13 08:45:00 From: Parent Transfer / Ref: EDU-SUPPORT  
+Last login: 2023-AUG-15 3:43pm / Location: Ann Arbor, MI  
+
+Debit: Amt: $9,300.00 Date: 2023-JUL-02 09:30:00 To: Delta Airlines / Ref: Family Vacation  
+Debit: Amt: $2,200.00 Date: 2023-JUL-02 09:35:00 To: Chick-fil-A / Ref: Travel Meals  
+Credit: Amt: $3,500.00 Date: 2023-JUL-01 10:00:00 From: Refund / Ref: CANCELED-HOTEL  
+Last login: 2023-JUL-03 2:43pm / Location: Richmond, VA  
+
+Debit: Amt: $14,700.00 Date: 2023-JUN-10 11:00:00 To: Home Depot / Ref: Kitchen Remodel  
+Credit: Amt: $5,000.00 Date: 2023-JUN-09 08:30:00 From: Cashback / Ref: RENOVATION-REBATE  
+Last login: 2023-JUN-11 4:43pm / Location: Omaha, NE  
+
+Debit: Amt: $7,800.00 Date: 2023-MAY-04 12:15:00 To: Marriott Hotels / Ref: Business Stay  
+Debit: Amt: $1,400.00 Date: 2023-MAY-04 12:20:00 To: Uber / Ref: Ride Charges  
+Credit: Amt: $2,900.00 Date: 2023-MAY-03 09:00:00 From: Reimbursement / Ref: WORK-TRAVEL  
+Last login: 2023-MAY-05 6:43pm / Location: St. Louis, MO  
+
+Debit: Amt: $11,900.00 Date: 2023-APR-01 10:30:00 To: NYU / Ref: Spring Semester  
+Credit: Amt: $3,800.00 Date: 2023-MAR-31 08:00:00 From: Parent Support / Ref: EDU-FUND  
+Last login: 2023-APR-02 3:43pm / Location: Brooklyn, NY  
+
+Debit: Amt: $16,200.00 Date: 2022-DEC-20 09:45:00 To: Tesla Finance / Ref: Lease Payment  
+Credit: Amt: $6,000.00 Date: 2022-DEC-19 14:10:00 From: Investment Return / Ref: Q4-DIVIDEND  
+Last login: 2022-DEC-21 3:43pm / Location: Salt Lake City, UT  
+
+Debit: Amt: $10,900.00 Date: 2022-NOV-05 12:00:00 To: Lowe’s / Ref: Garden Upgrade  
+Debit: Amt: $1,900.00 Date: 2022-NOV-05 12:05:00 To: Panera Bread / Ref: Catering  
+Credit: Amt: $2,400.00 Date: 2022-NOV-04 09:00:00 From: Refund / Ref: CANCELLED-ORDER  
+Last login: 2022-NOV-06 4:43pm / Location: Kansas City, MO  
+
+Debit: Amt: $13,500.00 Date: 2022-OCT-10 11:30:00 To: UCLA / Ref: Fall Tuition  
+Credit: Amt: $4,300.00 Date: 2022-OCT-09 08:30:00 From: Parent Transfer / Ref: EDU-SUPPORT  
+Last login: 2022-OCT-11 2:43pm / Location: Los Angeles, CA  
+
+Debit: Amt: $7,200.00 Date: 2022-SEP-18 09:45:00 To: Hilton Hotels / Ref: Conference Stay  
+Debit: Amt: $1,300.00 Date: 2022-SEP-18 09:50:00 To: Lyft / Ref: Ride Charges  
+Credit: Amt: $3,100.00 Date: 2022-SEP-17 10:10:00 From: Sponsorship / Ref: EVENT-FUND  
+Last login: 2022-SEP-19 6:43pm / Location: Orlando, FL  
+
+Debit: Amt: $11,300.00 Date: 2022-AUG-02 13:00:00 To: Kaiser Permanente / Ref: Surgery Bill  
+Credit: Amt: $3,600.00 Date: 2022-AUG-01 09:00:00 From: Insurance Claim / Ref: HEALTH-CLM  
+Last login: 2022-AUG-03 3:43pm / Location: San Francisco, CA  
+
+Debit: Amt: $16,700.00 Date: 2021-DEC-15 10:20:00 To: IKEA / Ref: Home Setup  
+Credit: Amt: $5,200.00 Date: 2021-DEC-14 08:45:00 From: Cashback / Ref: HOLIDAY-REBATE  
+Last login: 2021-DEC-16 2:43pm / Location: Raleigh, NC  
+
+Debit: Amt: $8,300.00 Date: 2021-NOV-03 12:30:00 To: Expedia / Ref: Flight Booking  
+Debit: Amt: $2,000.00 Date: 2021-NOV-03 12:35:00 To: Uber Eats / Ref: Food Orders  
+Credit: Amt: $2,900.00 Date: 2021-NOV-02 09:00:00 From: Refund / Ref: CANCELED-TRIP  
+Last login: 2021-NOV-04 4:43pm / Location: Detroit, MI  
+
+Debit: Amt: $14,300.00 Date: 2021-OCT-10 11:00:00 To: University of Florida / Ref: Fall Tuition  
+Credit: Amt: $4,100.00 Date: 2021-OCT-09 08:30:00 From: Parent Support / Ref: EDU-FUND  
+Last login: 2021-OCT-11 3:43pm / Location: Jacksonville, FL  
+
+Debit: Amt: $6,800.00 Date: 2021-SEP-01 09:30:00 To: Airbnb / Ref: Weekend Stay  
+Debit: Amt: $1,400.00 Date: 2021-SEP-01 09:35:00 To: Starbucks / Ref: Monthly Spend  
+Credit: Amt: $2,600.00 Date: 2021-AUG-31 10:00:00 From: Reimbursement / Ref: TRAVEL-EXP  
+Last login: 2021-SEP-02 2:43pm / Location: Cincinnati, OH  
+
+Debit: Amt: $13,800.00 Date: 2020-JUN-10 11:00:00 To: Home Depot / Ref: Kitchen Remodel  
+Credit: Amt: $4,800.00 Date: 2020-JUN-09 08:30:00 From: Cashback / Ref: RENOVATION-REBATE  
+Last login: 2020-JUN-11 4:43pm / Location: Omaha, NE  
+
+Debit: Amt: $7,600.00 Date: 2019-MAY-04 12:15:00 To: Marriott Hotels / Ref: Business Stay  
+Debit: Amt: $1,300.00 Date: 2019-MAY-04 12:20:00 To: Uber / Ref: Ride Charges  
+Credit: Amt: $2,700.00 Date: 2019-MAY-03 09:00:00 From: Reimbursement / Ref: WORK-TRAVEL  
+Last login: 2019-MAY-05 6:43pm / Location: St. Louis, MO  
+
+Debit: Amt: $11,500.00 Date: 2018-APR-01 10:30:00 To: NYU / Ref: Spring Semester  
+Credit: Amt: $3,700.00 Date: 2018-MAR-31 08:00:00 From: Parent Support / Ref: EDU-FUND  
+Last login: 2018-APR-02 3:43pm / Location: Brooklyn, NY  
+
+Debit: Amt: $15,600.00 Date: 2018-DEC-12 11:45:00 To: Ford Motors / Ref: Car Purchase  
+Credit: Amt: $5,400.00 Date: 2018-DEC-11 08:30:00 From: Loan Disbursement / Ref: AUTO-LOAN  
+Last login: 2018-DEC-13 2:43pm / Location: Chicago, IL  
+
+Debit: Amt: $9,800.00 Date: 2018-NOV-05 10:15:00 To: Delta Airlines / Ref: Holiday Trip  
+Debit: Amt: $1,700.00 Date: 2018-NOV-05 10:20:00 To: McDonald’s / Ref: Family Meals  
+Credit: Amt: $2,900.00 Date: 2018-NOV-04 09:30:00 From: Travel Insurance / Ref: CLAIM-PAY  
+Last login: 2018-NOV-06 4:43pm / Location: Houston, TX  
+
+Debit: Amt: $12,400.00 Date: 2017-SEP-10 13:00:00 To: University of Chicago / Ref: Fall Semester  
+Credit: Amt: $4,200.00 Date: 2017-SEP-09 09:15:00 From: Parent Transfer / Ref: EDU-SUPPORT  
+Last login: 2017-SEP-11 5:43pm / Location: Chicago, IL  
+
+Debit: Amt: $6,900.00 Date: 2017-AUG-18 09:20:00 To: Hilton Hotels / Ref: Conference Stay  
+Debit: Amt: $1,500.00 Date: 2017-AUG-18 09:25:00 To: Lyft / Ref: Ride Charges  
+Credit: Amt: $2,800.00 Date: 2017-AUG-17 10:00:00 From: Sponsorship / Ref: EVENT-FUND  
+Last login: 2017-AUG-19 6:43pm / Location: Phoenix, AZ  
+
+Debit: Amt: $14,200.00 Date: 2016-DEC-20 10:00:00 To: Apple Store / Ref: MacBook Purchase  
+Credit: Amt: $4,900.00 Date: 2016-DEC-19 08:40:00 From: Cashback / Ref: HOLIDAY-REBATE  
+Last login: 2016-DEC-21 3:43pm / Location: San Diego, CA  
+
+Debit: Amt: $8,100.00 Date: 2016-JUL-02 12:30:00 To: American Airlines / Ref: Family Trip  
+Debit: Amt: $1,600.00 Date: 2016-JUL-02 12:35:00 To: Starbucks / Ref: Travel Expenses  
+Credit: Amt: $2,500.00 Date: 2016-JUL-01 09:30:00 From: Refund / Ref: CANCELLED-BOOKING  
+Last login: 2016-JUL-03 4:43pm / Location: Dallas, TX  
+
+
+### CONTINUE PASTING YOUR RECORDS HERE ###
+`;
+
+    const container = document.getElementById("transactionsContainer");
+    const btn = document.getElementById("seeMore");
+
+    const lines = transactions.trim().split("\n").filter(l => l.trim());
+    let index = 0;
+    const batchSize = 5;
+
+    function renderNextBatch() {
+      for (let i = 0; i < batchSize && index < lines.length; i++, index++) {
+        const line = lines[index];
+        const card = document.createElement("div");
+        card.classList.add("card");
+
+        if (line.startsWith("Debit")) {
+          card.classList.add("debit");
+          const match = line.match(/Amt: (.+?) Date: (.+?) To: (.+?) \/ Ref: (.+)/);
+          if (match) {
+            card.innerHTML = `
+              <div class="type">💳 Debit</div>
+              <div class="amount">${match[1]}</div>
+              <div class="date">${match[2]}</div>
+              <div class="info">To: ${match[3]}</div>
+              <div class="ref">Ref: ${match[4]}</div>
+            `;
+          }
+        } else if (line.startsWith("Credit")) {
+          card.classList.add("credit");
+          const match = line.match(/Amt: (.+?) Date: (.+?) From: (.+?) \/ Ref: (.+)/);
+          if (match) {
+            card.innerHTML = `
+              <div class="type">💰 Credit</div>
+              <div class="amount">${match[1]}</div>
+              <div class="date">${match[2]}</div>
+              <div class="info">From: ${match[3]}</div>
+              <div class="ref">Ref: ${match[4]}</div>
+            `;
+          }
+        } else if (line.startsWith("Last login")) {
+          card.classList.add("login");
+          const match = line.match(/Last login: (.+?) \/ Location: (.+)/);
+          if (match) {
+            card.innerHTML = `
+              <div class="type">🔑 Last Login</div>
+              <div class="date">${match[1]}</div>
+              <div class="info">Location: ${match[2]}</div>
+            `;
+          }
+        }
+        container.appendChild(card);
+      }
+      if (index >= lines.length) {
+        btn.style.display = "none";
+      }
+    }
+
+    btn.addEventListener("click", renderNextBatch);
+    renderNextBatch();
+    
+    window.history.pushState(null, null, window.location.href);
+window.onpopstate = function () {
+  window.history.pushState(null, null, window.location.href);
+};
+  </script>
+</body>
+</html>
+

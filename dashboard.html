@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIRST PROVIDUS TRUST BANK Dashboard</title>
+
+  <style>
+    /* ===== GENERAL ===== */
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f6fb;
+    }
+
+    header {
+      background: #001f54; /* Navy blue */
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h2 {
+      margin: 0;
+    }
+
+    header select, header div {
+      margin-left: 15px;
+      cursor: pointer;
+    }
+
+    .ticker {
+      background: #eaeaea;
+      padding: 8px;
+      font-size: 20px;
+      color: #333;
+      text-align: center;
+    }
+
+
+    h1 {
+      text-align: center;
+      margin: 20px;
+      color: #001f54;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    nav button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #001f54;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    nav button:hover {
+      background: #00337a;
+    }
+
+    .card, .loan, .transfer {
+      background: white;
+      margin: 20px auto;
+      padding: 20px;
+      width: 80%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .card p, .loan p {
+      cursor: pointer;
+      font-weight: bold;
+      color: #001f54;
+    }
+
+    .transfer input, .transfer button {
+      display: block;
+      width: 90%;
+      margin: 10px auto;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .transfer button {
+      background: #001f54;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .transfer button:hover {
+      background: #00337a;
+    }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -30%);
+      background: white;
+      padding: 20px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      width: 300px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Notifications */
+    #notificationBox {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 15px;
+      width: 320px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #000;
+      text-align: left;
+    }
+
+    #notificationBox ul {
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 0;
+      list-style: none;
+    }
+
+    #notificationBox li {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    #notificationBox button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px;
+      background: #001f54;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Keep 🔔 white */
+    #messages {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    /* Fade + scale effect */
+@keyframes fadeScale {
+  0%   { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+#loanDate.checked {
+  color: green;
+  font-weight: bold;
+  animation: fadeScale 1s ease-in-out;
+}
+
+  </style>
+</head>
+
+<body>
+  <button onclick="logout()">Logout</button>
+
+  <header>
+    <h2>First Providus Trust Bank</h2>
+    <select id="language">
+      <option>English</option>
+      <option>French</option>
+      <option>Spanish</option>
+    </select>
+    <div id="profile" onclick="changeProfile()" style="display: flex; align-items: center; cursor: pointer;">
+      <img src="profile.jpg" alt="Profile"
+           style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
+      <span>Michael Thapa</span>
+    </div>
+
+    <a href="transaction-history.html" id="messages">🔔 Messages</a>
+  </header>
+
+
+<section class="ticker">
+  <div class="ticker-wrap">
+    <div class="ticker-move">
+      <span>20,929.5 | +103.6 (+0.50%)</span>
+      <span>1.05751 | +0.00262 (+0.25%)</span>
+      <span>USD 104.5 | +0.60%</span>
+      <span>EUR 0.92 | -0.12%</span>
+      <span>GBP 1.28 | +0.35%</span>
+      <span>JPY 147.2 | -0.45%</span>
+      <span>AUD 0.67 | +0.22%</span>
+      <span>CAD 1.35 | +0.10%</span>
+      <span>CHF 0.89 | -0.05%</span>
+      <span>CNY 7.25 | +0.15%</span>
+    </div>
+  </div>
+</section>
+<style>
+.ticker {
+  background: #ccc; 
+  color: #333; 
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+}
+
+.ticker-wrap {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ticker-move {
+  display: inline-block;
+  padding-left: 100%;
+  animation: ticker 20s linear infinite;
+  white-space: nowrap;
+}
+
+.ticker-move span {
+  display: inline-block;
+  padding: 0 2rem;
+  font-size: 16px;
+}
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+</style>
+
+
+
+
+  <h1>Welcome Back Michael Thapa!</h1>
+
+  <nav>
+<!-- Add this button inside dashboard.html -->
+
+
+    <button onclick="goPage('account')">Account</button>
+<button onclick="goPage('transfer')">Transfers</button>
+
+<button onclick="goPage('covid')">Covid-19 Box</button>
+
+<!-- Modal Structure -->
+<div id="covidModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; border-radius:8px; max-width:400px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.3);">
+    <h3>COVID-19 Notice</h3>
+    <p>Please be aware that some transfers may take longer than usual. Stay safe!</p>
+    <button onclick="closeCovid()">OK</button>
+</div>
+  </nav>
+
+  <section class="card">
+    <h3>Available Balance</h3>
+    <p id="balance" onclick="toggleBalance()">Click to show balance</p>
+  </section>
+
+  <section class="loan"><p id="loanDate" onclick="changeDate()">Check</p>
+<h3>$30,235.31</h3>
+<p>Eligible for Loan Application</p>
+  </section>
+
+  <section class="transfer">
+    <h3>Get Loan</h3>
+    <form id="transferForm">
+      <input type="text" placeholder="Account Name" required>
+      <input type="text" placeholder="Account Number" required>
+      <input type="text" placeholder="Bank" required>
+      <input type="number" placeholder="Loan Amount" required>
+      <input type="text" placeholder="Bank verification code" required>
+      <button type="submit">submit</button>
+    </form>
+  </section>
+
+  <!-- Popup -->
+  <div id="popup" class="popup hidden">
+    <p>⚠️ It seems there’s an issue with your loan information. Please verify your data and resubmit. </p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+
+  <!-- Notifications -->
+  <div id="notificationBox" class="hidden">
+    <h3>Notifications</h3>
+    <ul id="notificationList"></ul>
+    <button onclick="closeMessages()">Close</button>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html";
+    }
+
+    // BALANCE TOGGLE
+    const balance = document.getElementById("balance");
+    let visible = false;
+    balance.addEventListener("click", () => {
+      visible = !visible;
+      balance.textContent = visible ? "$2,560,421.00 USD" : "Click to show balance";
+    });
+
+    // TRANSFER FORM
+    const transferForm = document.getElementById("transferForm");
+    transferForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      document.getElementById("popup").classList.remove("hidden");
+    });
+
+    // POPUP CLOSE
+    function closePopup() {
+      document.getElementById("popup").classList.add("hidden");
+    }
+
+    function closeMessages() {
+      document.getElementById("notificationBox").classList.add("hidden");
+    }
+    
+
+    // PAGE REDIRECT
+function goPage(page) {
+  if (page === 'account') {
+    window.location.href = "account.html";  // direct
+  } else if (page === 'transfer') {
+    setTimeout(function() {
+      window.location.href = "transfer.html";  // delay by 2 seconds
+    }, 200);
+  } else {
+    alert(`You clicked: ${page}`);
+  }
+}
+
+function changeDate() {
+  const loanDate = document.getElementById("loanDate");
+
+  // Prevent multiple clicks
+  if (loanDate.classList.contains("checked")) return;
+
+  // Add animation after 1s
+  setTimeout(() => {
+    loanDate.textContent = "Checked ✔";
+    loanDate.textContent = "You are Eligible ✔";
+    loanDate.classList.add("checked");
+  }, 1000);
+}
+
+function goPage(page) {
+  if(page === 'covid') {
+    document.getElementById('covidModal').style.display = 'flex';
+  } else if (page === 'account') {
+    window.location.href = "account.html";
+  } else if (page === 'transfer') {
+    setTimeout(function() {
+      window.location.href = "transfer.html";
+    }, 2000);
+  } else {
+    alert(`You clicked: ${page}`);
+  }
+}
+
+function closeCovid() {
+  document.getElementById('covidModal').style.display = 'none';
+}
+
+window.history.pushState(null, null, window.location.href);
+window.onpopstate = function () {
+  window.history.pushState(null, null, window.location.href);
+};
+  </script>
+</body>
+</html>

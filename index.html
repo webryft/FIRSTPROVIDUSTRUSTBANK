@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIRST PROVIDUS TRUST BANK - Login</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .login-container {
+      width: 350px;
+      background: #fff;
+      padding: 30px 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease-in-out;
+    }
+    .login-container h2 {
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+    }
+    .login-container input {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+    .login-container input:focus {
+      border-color: #4e54c8;
+      box-shadow: 0 0 8px rgba(78, 84, 200, 0.4);
+      outline: none;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(45deg, #4e54c8, #8f94fb);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .login-container button:hover {
+      background: linear-gradient(45deg, #8f94fb, #4e54c8);
+      transform: scale(1.05);
+    }
+    .error {
+      margin-top: 10px;
+      color: #e74c3c;
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4e54c8;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>FIRST PROVIDUS TRUST BANK Login</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <label for="security">What is your favourite pet?</label>
+      <input type="text" id="security" placeholder="Answer" required>
+      <button type="submit" id="loginBtn">Login</button>
+    </form>
+    <p id="loginError" class="error"></p>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.getElementById("loginForm");
+      const passwordField = document.getElementById("password");
+      const loginBtn = document.getElementById("loginBtn");
+
+      // USERS DATABASE
+      const users = [
+        { username: "Michael thapa", password: "thapa224", security: "dog" },
+        { username: "John Doe", password: "john123", security: "cat" },
+        { username: "Sarah Lee", password: "sarah456", security: "parrot" },
+      ];
+
+      // LOGIN VALIDATION
+      loginForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = passwordField.value.trim();
+        const security = document.getElementById("security").value.trim().toLowerCase();
+
+        // Check if user exists
+        const validUser = users.find(
+          u => u.username.toLowerCase() === username.toLowerCase() &&
+               u.password === password &&
+               u.security.toLowerCase() === security
+        );
+
+        if (validUser) {
+          // Show loading state
+          loginBtn.disabled = true;
+          loginBtn.innerHTML = '<span class="spinner"></span> Loading...';
+
+          setTimeout(() => {
+            localStorage.setItem("isLoggedIn", "true");
+            window.location.href = "dashboard.html";
+          }, 2000); // 2 seconds delay before redirect
+        } else {
+          document.getElementById("loginError").textContent =
+            "❌ Invalid username, password, or security answer.";
+        }
+      });
+
+      // TOGGLE PASSWORD VISIBILITY
+      const toggleBtn = document.createElement("span");
+      toggleBtn.textContent = "👁 Show";
+      toggleBtn.style.cursor = "pointer";
+      toggleBtn.style.fontSize = "12px";
+      toggleBtn.style.display = "block";
+      toggleBtn.style.textAlign = "right";
+      toggleBtn.style.marginTop = "-10px";
+      toggleBtn.style.color = "#4e54c8";
+
+      passwordField.parentNode.insertBefore(toggleBtn, passwordField.nextSibling);
+
+      toggleBtn.addEventListener("click", () => {
+        if (passwordField.type === "password") {
+          passwordField.type = "text";
+          toggleBtn.textContent = "Hide";
+        } else {
+          passwordField.type = "password";
+          toggleBtn.textContent = "👁 Show";
+        }
+      });
+    });
+
+    // DISABLE DEVICE BACK BUTTON
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+      window.history.pushState(null, null, window.location.href);
+    };
+  </script>
+</body>
+</html>
+
